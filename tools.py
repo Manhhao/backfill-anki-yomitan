@@ -1,7 +1,6 @@
-import base64
 from aqt import mw
-from aqt.operations import CollectionOp, OpChangesWithCount
-from aqt.utils import showInfo, showWarning
+from aqt.operations import CollectionOp
+from aqt.utils import showWarning
 from aqt.qt import *
 from . import yomitan_api  
 from . import anki_util  
