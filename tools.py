@@ -4,14 +4,15 @@ from aqt.operations import CollectionOp, OpChangesWithCount
 from aqt.utils import showInfo, showWarning
 from aqt.qt import *
 from . import yomitan_api  
+from . import anki_util  
 
 class ToolsBackfill:
     def __init__(self):
         action = QAction("Backfill from Yomitan", mw)
-        action.triggered.connect(self.open_dialog)
+        action.triggered.connect(self._open_dialog)
         mw.form.menuTools.addAction(action)
 
-    def open_dialog(self):
+    def _open_dialog(self):
         if not yomitan_api.ping_yomitan():
             showWarning("Unable to reach Yomitan API")
             return
@@ -110,82 +111,10 @@ class ToolsBackfill:
             should_replace = self.replace.isChecked()
             
             note_ids = mw.col.db.list("SELECT DISTINCT nid FROM cards WHERE did = ?", deck_id)
-            
-            def write_media(file):
-                try:
-                    content = file.get("content")
-                    filename = file.get("ankiFilename")
-                    anki_media_dir = mw.col.media.dir()
-                    decoded = base64.b64decode(content)
-
-                    target_path = os.path.join(anki_media_dir, filename)
-
-                    with open(target_path, "wb") as f:
-                        f.write(decoded)
-                    
-                    return True
-                except Exception:
-                    return False
-
-            def get_field_from_request(fields, reading):
-                if reading:
-                    for entry in fields:
-                        if entry.get("reading") == reading:
-                            return entry.get(handlebar)
-                    return None
-                else:
-                    return fields[0].get(handlebar)
-
-            # https://github.com/wikidattica/reversoanki/pull/1/commits/62f0c9145a5ef7b2bde1dc6dfd5f23a53daac4d0
-            def backfill_notes(col):
-                notes = []
-                for nid in note_ids:
-                    note = col.get_note(nid)
-                    if not expression_field in note or not field in note:
-                        continue
-
-                    current = note[field].strip()
-                    if should_replace or not current:
-                        reading = note[reading_field] if reading_field else None
-                        api_request = yomitan_api.request_handlebar(note[expression_field].strip(), reading, handlebar)
-                        if not api_request:
-                            continue
-
-                        fields = api_request.get("fields")
-                        if not fields:
-                            continue
-
-                        data = get_field_from_request(fields, reading)
-                        if not data:
-                            continue
-
-                        # checks if handlebar data contains filename and writes it to anki if present
-                        dictionary_media = api_request.get("dictionaryMedia", [])
-                        for file in dictionary_media:
-                            filename = file.get("ankiFilename")
-                            if filename in data:
-                                write_media(file)
-                        
-                        audio_media = api_request.get("audioMedia", [])
-                        for file in audio_media:
-                            filename = file.get("ankiFilename")
-                            # if audio handlebar is requested, handlebar data contains the relevant audio filename, write only that file
-                            if filename in data:
-                                write_media(file)
-                                break
-
-                        note[field] = data
-                        notes.append(note)
-            
-                return OpChangesWithCount(changes=col.update_notes(notes), count=len(notes))
-            
-            def on_success(result):
-                mw.col.reset()
-                showInfo(f"Updated {result.count} cards")
                 
             op = CollectionOp(
                 parent = mw,
-                op = lambda col: backfill_notes(col)
+                op = lambda col: anki_util.backfill_notes(col, note_ids, expression_field, reading_field, field, handlebar, should_replace)
             )
             
-            op.success(on_success).run_in_background()
+            op.success(anki_util.on_success).run_in_background()
