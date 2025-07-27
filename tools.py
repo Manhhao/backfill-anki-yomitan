@@ -106,7 +106,7 @@ class ToolsBackfill:
             expression_field = self.expression_field.currentText()
             reading_field = self.reading_field.currentText()
             field = self.fields.currentText()
-            handlebar = self.yomitan_handlebar.text()
+            handlebar = self.yomitan_handlebar.text().lstrip("{").rstrip("}")
             should_replace = self.replace.isChecked()
             
             note_ids = mw.col.db.list("SELECT DISTINCT nid FROM cards WHERE did = ?", deck_id)

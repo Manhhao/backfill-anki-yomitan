@@ -112,7 +112,7 @@ class BrowserBackfill:
             expression_field = self.expression_field.currentText()
             reading_field = self.reading_field.currentText()
             field = self.fields.currentText()
-            handlebar = self.yomitan_handlebar.text()
+            handlebar = self.yomitan_handlebar.text().lstrip("{").rstrip("}")
             should_replace = self.replace.isChecked()
                 
             op = CollectionOp(
