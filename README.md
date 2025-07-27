@@ -23,7 +23,7 @@ Make sure your Browser is running and the API is working.
 1. For `Expression Field` choose the expression field (e.g. `Expression` in Lapis) of your note type, this is the field that will be queried into Yomitan.
 2. Optionally choose a `Reading Field` (e.g. ExpressionReading in Lapis) to differentiate expressions using their reading. If left blank, the add-on uses the first result Yomitan returns.
 3. For `Field` choose the field to backfilled.
-4. In `Handlebar` type in the Yomitan handlebar, from which you wish to pull data from, without brackets (e.g. `frequency-harmonic-rank`).
+4. In `Handlebar` type in the Yomitan handlebar, from which you wish to pull data from (e.g. `frequency-harmonic-rank`).
 5. Optionally tick `Replace` if you wish to replace the current content of the field in every card.
 6. Press `Run`.
 
