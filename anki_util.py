@@ -70,8 +70,8 @@ def get_entry_from_reading(entries, handlebar, reading):
             if entry.get("reading") == reading:
                 return entry.get(handlebar)
             return None
-        else:
-            return entries[0].get(handlebar)
+    else:
+        return entries[0].get(handlebar)
             
 def on_success(result):
     mw.col.reset()
