@@ -1,10 +1,20 @@
 import json
 import urllib
+from aqt import mw
 from urllib.error import HTTPError, URLError
 
-request_url = "http://127.0.0.1:8766"
+request_url = ""
+maxEntries = 0
 request_timeout = 10
 ping_timeout = 5
+
+def read_config():
+    global request_url
+    global maxEntries
+    cfg = mw.addonManager.getConfig(__name__)
+
+    request_url = f"http://{cfg['ip']}:{cfg['port']}"
+    maxEntries = cfg["maxEntries"]
 
 # https://github.com/Kuuuube/yomitan-api/blob/master/docs/api_paths/ankiFields.md
 def request_handlebar(expression, reading, handlebar):
@@ -38,6 +48,7 @@ def request_handlebar(expression, reading, handlebar):
     return data
 
 def ping_yomitan(): 
+    read_config()
     req = urllib.request.Request(request_url + "/yomitanVersion", method="POST")
     try:
         response = urllib.request.urlopen(req, timeout=ping_timeout)  
