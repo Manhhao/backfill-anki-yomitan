@@ -29,7 +29,27 @@ Make sure your Browser is running and the API is working.
 
 Changes can be undone with `Edit -> Undo` or with `CTRL + Z`.
 
+## Config
+
+`Tools -> Add-ons -> backfill-anki-yomitan -> Config`
+
+`max_entries`
+
+Default: `4`
+
+Amount of entries to request when `Reading Field` is specified.
+
+`yomitan_api_ip`
+
+Default: `127.0.0.1`
+
+`yomitan_api_port`
+
+Default: `19633`
+
 ## Issues
+If you installed the Yomitan API before 07/29/2025, the default port of the API has been changed. You can either reinstall the API (recommended), or change `yomitan_api_port` to `8766` in the config.
+
 The addon has been updated to support the changes to the API in Yomitan 25.7.14.1, previous versions of Yomitan are not supported anymore.
 
 If you're backfilling audio, please be aware that retrieving audio - depending on the audio sources configured in Yomitan - can be quite slow.
