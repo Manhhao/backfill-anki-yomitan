@@ -69,7 +69,7 @@ def get_entry_from_reading(entries, handlebar, reading):
         for entry in entries:
             if entry.get("reading") == reading:
                 return entry.get(handlebar)
-            return None
+        return None
     else:
         return entries[0].get(handlebar)
             
