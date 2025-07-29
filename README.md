@@ -31,13 +31,13 @@ Changes can be undone with `Edit -> Undo` or with `CTRL + Z`.
 
 ## Config
 
-Tools -> Add-ons -> Choose `backfill-anki-yomitan` -> Config
+`Tools -> Add-ons -> backfill-anki-yomitan -> Config`
 
 `max_entries`
 
 Default: `4`
 
-Amount of entries to be requested when `Reading Field` is specified.
+Amount of entries to request when `Reading Field` is specified.
 
 `yomitan_api_ip`
 
