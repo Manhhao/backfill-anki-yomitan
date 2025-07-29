@@ -4,17 +4,17 @@ from aqt import mw
 from urllib.error import HTTPError, URLError
 
 request_url = ""
-maxEntries = 0
+max_entries = 0
 request_timeout = 10
 ping_timeout = 5
 
 def read_config():
     global request_url
-    global maxEntries
+    global max_entries
     cfg = mw.addonManager.getConfig(__name__)
 
-    request_url = f"http://{cfg['ip']}:{cfg['port']}"
-    maxEntries = cfg["maxEntries"]
+    request_url = f"http://{cfg['yomitan_api_ip']}:{cfg['yomitan_api_port']}"
+    max_entries = cfg["max_entries"]
 
 # https://github.com/Kuuuube/yomitan-api/blob/master/docs/api_paths/ankiFields.md
 def request_handlebar(expression, reading, handlebar):
@@ -22,7 +22,7 @@ def request_handlebar(expression, reading, handlebar):
         "text": expression,
         "type": "term",
         "markers": [handlebar, "reading"],
-        "maxEntries": 4 if reading else 1, # should probably be configurable
+        "maxEntries": max_entries if reading else 1,
         "includeMedia": True
     }
 

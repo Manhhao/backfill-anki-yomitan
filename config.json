@@ -1,5 +1,5 @@
 {
-    "ip": "127.0.0.1",
-    "maxEntries": 4,
-    "port": 8766
+    "max_entries": 4,
+    "yomitan_api_ip": "127.0.0.1",
+    "yomitan_api_port": 19633
 }
