@@ -40,7 +40,7 @@ def request_handlebar(expression, reading, handlebar):
     try:
         response = urllib.request.urlopen(req, timeout=request_timeout)  
         data = json.loads(response.read())
-    except HTTPError as ge:
+    except HTTPError as e:
         if e.code == 500:
             # this throws if the handlebar does not exist for specified term
             return None
