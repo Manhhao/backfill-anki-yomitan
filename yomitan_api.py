@@ -4,24 +4,28 @@ from aqt import mw
 from urllib.error import HTTPError, URLError
 
 request_url = ""
-max_entries = 0
 request_timeout = 10
 ping_timeout = 5
+
+max_entries = 0
+reading_handlebar = ""
 
 def read_config():
     global request_url
     global max_entries
+    global reading_handlebar
     cfg = mw.addonManager.getConfig(__name__)
 
     request_url = f"http://{cfg['yomitan_api_ip']}:{cfg['yomitan_api_port']}"
     max_entries = cfg["max_entries"]
+    reading_handlebar = cfg["reading_handlebar"]
 
 # https://github.com/Kuuuube/yomitan-api/blob/master/docs/api_paths/ankiFields.md
 def request_handlebar(expression, reading, handlebar):
     body = {
         "text": expression,
         "type": "term",
-        "markers": [handlebar, "reading"],
+        "markers": [handlebar, reading_handlebar],
         "maxEntries": max_entries if reading else 1,
         "includeMedia": True
     }
@@ -36,7 +40,7 @@ def request_handlebar(expression, reading, handlebar):
     try:
         response = urllib.request.urlopen(req, timeout=request_timeout)  
         data = json.loads(response.read())
-    except HTTPError as e:
+    except HTTPError as ge:
         if e.code == 500:
             # this throws if the handlebar does not exist for specified term
             return None

@@ -67,7 +67,7 @@ def write_media(file):
 def get_entry_from_reading(entries, handlebar, reading):
     if reading:
         for entry in entries:
-            if entry.get("reading") == reading:
+            if entry.get(yomitan_api.reading_handlebar) == reading:
                 return entry.get(handlebar)
         return None
     else:
