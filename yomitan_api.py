@@ -21,11 +21,15 @@ def read_config():
     reading_handlebar = cfg["reading_handlebar"]
 
 # https://github.com/Kuuuube/yomitan-api/blob/master/docs/api_paths/ankiFields.md
-def request_handlebar(expression, reading, handlebar):
+def request_handlebar(expression, reading, handlebars):
+    markers = list(handlebars)
+    if reading:
+        markers.append(reading_handlebar)
+
     body = {
         "text": expression,
         "type": "term",
-        "markers": [handlebar, reading_handlebar],
+        "markers": markers,
         "maxEntries": max_entries if reading else 1,
         "includeMedia": True
     }

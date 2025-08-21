@@ -6,7 +6,7 @@ from aqt.qt import *
 from . import yomitan_api  
 
 # https://github.com/wikidattica/reversoanki/pull/1/commits/62f0c9145a5ef7b2bde1dc6dfd5f23a53daac4d0
-def backfill_notes(col, note_ids, expression_field, reading_field, field, handlebar, should_replace):
+def backfill_notes(col, note_ids, expression_field, reading_field, field, handlebars, should_replace):
     notes = []
     for nid in note_ids:
         note = col.get_note(nid)
@@ -16,7 +16,7 @@ def backfill_notes(col, note_ids, expression_field, reading_field, field, handle
         current = note[field].strip()
         if should_replace or not current:
             reading = note[reading_field] if reading_field else None
-            api_request = yomitan_api.request_handlebar(note[expression_field].strip(), reading, handlebar)
+            api_request = yomitan_api.request_handlebar(note[expression_field].strip(), reading, handlebars)
             if not api_request:
                 continue
 
@@ -24,7 +24,7 @@ def backfill_notes(col, note_ids, expression_field, reading_field, field, handle
             if not fields:
                 continue
 
-            data = get_entry_from_reading(fields, handlebar, reading)
+            data = get_data_from_reading(fields, handlebars, reading)
             if not data:
                 continue
 
@@ -64,14 +64,14 @@ def write_media(file):
     except Exception:
         return False
 
-def get_entry_from_reading(entries, handlebar, reading):
+def get_data_from_reading(entries, handlebars, reading):
     if reading:
         for entry in entries:
             if entry.get(yomitan_api.reading_handlebar) == reading:
-                return entry.get(handlebar)
+                return "".join(entry.get(h, "") for h in handlebars)
         return None
     else:
-        return entries[0].get(handlebar)
+        return "".join(entries[0].get(h, "") for h in handlebars)
             
 def on_success(result):
     mw.col.reset()
