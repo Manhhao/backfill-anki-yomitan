@@ -68,10 +68,10 @@ def get_data_from_reading(entries, handlebars, reading):
     if reading:
         for entry in entries:
             if entry.get(yomitan_api.reading_handlebar) == reading:
-                return ''.join(entry.get(h, "") for h in handlebars)
+                return "".join(entry.get(h, "") for h in handlebars)
         return None
     else:
-        return ''.join(entries[0].get(h, "") for h in handlebars)
+        return "".join(entries[0].get(h, "") for h in handlebars)
             
 def on_success(result):
     mw.col.reset()
