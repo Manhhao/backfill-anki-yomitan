@@ -39,6 +39,12 @@ Default: `4`
 
 Amount of entries to request when `Reading Field` is specified.
 
+`reading_handlebar`
+
+Default: `reading`
+
+Handlebar used to compare against `Reading Field`.
+
 `yomitan_api_ip`
 
 Default: `127.0.0.1`
