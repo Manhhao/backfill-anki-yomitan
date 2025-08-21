@@ -49,7 +49,7 @@ class BrowserBackfill:
             self.fields = QComboBox()
             self.expression_field = QComboBox()
             self.reading_field = QComboBox()
-            self.yomitan_handlebar = QLineEdit()
+            self.yomitan_handlebars = QLineEdit()
             self.apply = QPushButton("Run")
             self.cancel = QPushButton("Cancel")
             self.replace = QCheckBox("Replace")
@@ -65,7 +65,7 @@ class BrowserBackfill:
             form.addRow(QLabel("Expression Field:"), self.expression_field)
             form.addRow(QLabel("Reading Field:"), self.reading_field)
             form.addRow(QLabel("Field:"), self.fields)
-            form.addRow(QLabel("Handlebar:"), self.yomitan_handlebar)
+            form.addRow(QLabel("Handlebar:"), self.yomitan_handlebars)
             
             buttons = QHBoxLayout()
             buttons.addWidget(self.apply)
@@ -112,12 +112,12 @@ class BrowserBackfill:
             expression_field = self.expression_field.currentText()
             reading_field = self.reading_field.currentText()
             field = self.fields.currentText()
-            handlebar = self.yomitan_handlebar.text().lstrip("{").rstrip("}")
+            handlebars = [p.lstrip("{").rstrip("}") for p in self.yomitan_handlebars.text().split(",") if p.strip()]
             should_replace = self.replace.isChecked()
                 
             op = CollectionOp(
                 parent = mw,
-                op = lambda col: anki_util.backfill_notes(col, self.note_ids, expression_field, reading_field, field, handlebar, should_replace)
+                op = lambda col: anki_util.backfill_notes(col, self.note_ids, expression_field, reading_field, field, handlebars, should_replace)
             )
             
             op.success(anki_util.on_success).run_in_background()
