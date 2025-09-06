@@ -4,6 +4,7 @@ from aqt.utils import showWarning
 from aqt.qt import *
 from . import yomitan_api  
 from . import anki_util  
+import json
 
 class ToolsBackfill:
     def __init__(self):
@@ -70,11 +71,10 @@ class ToolsBackfill:
             form_json_tab.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
             form_json_tab.setLabelAlignment(Qt.AlignmentFlag.AlignLeft)
             form_json_tab.addRow(QLabel("Preset"), self.preset)
-            self.open_folder.clicked.connect(anki_util.open_user_files_folder)
-            form_json_tab.addRow(self.open_folder)
             format_hyperlink = QLabel('<a href="https://google.de">Preset Format</a>')
             format_hyperlink.setOpenExternalLinks(True)
             form_json_tab.addRow(format_hyperlink)
+            form_json_tab.addRow(self.open_folder)
             self.json_tab.setLayout(form_json_tab)
 
             self.tab_widget.addTab(self.single_tab, "Single Field")
@@ -100,6 +100,7 @@ class ToolsBackfill:
             self.decks.currentIndexChanged.connect(self._update_fields)
             self.apply.clicked.connect(self._on_run)
             self.cancel.clicked.connect(self.reject)
+            self.open_folder.clicked.connect(anki_util.open_user_files_folder)
 
         def _load_decks(self):
             self.decks.clear()
@@ -138,6 +139,12 @@ class ToolsBackfill:
             self.preset.addItems(anki_util.read_user_files_folder())
 
         def _on_run(self):
+            if self.tab_widget.currentIndex() == 0:
+                self._run_single_field()
+            else:
+                self._run_preset()
+        
+        def _run_single_field(self):
             deck_id = self.decks.currentData()
             expression_field = self.expression_field.currentText()
             reading_field = self.reading_field.currentText()
@@ -146,10 +153,35 @@ class ToolsBackfill:
             should_replace = self.replace.isChecked()
             
             note_ids = mw.col.db.list("SELECT DISTINCT nid FROM cards WHERE did = ?", deck_id)
-                
+            t = (field, handlebars, should_replace)    
             op = CollectionOp(
                 parent = mw,
-                op = lambda col: anki_util.backfill_notes(col, note_ids, expression_field, reading_field, field, handlebars, should_replace)
+                op = lambda col: anki_util.backfill_notes(col, note_ids, expression_field, reading_field, handlebars, [t])
+            )
+            
+            op.success(anki_util.on_success).run_in_background()
+
+        def _run_preset(self):
+            deck_id = self.decks.currentData()
+            expression_field = self.expression_field.currentText()
+            reading_field = self.reading_field.currentText()
+            handlebars = []
+            target_tuples = []
+
+            path = os.path.join(anki_util.get_user_files_dir(), self.preset.currentText())
+            with open(path) as f:
+                preset = json.load(f)
+                targets = preset.get("targets")
+                for field, settings in targets.items():
+                    handlebar = [p.lstrip("{").rstrip("}") for p in settings.get("handlebar").split(",") if p.strip()]
+                    should_replace = settings.get("replace")
+                    handlebars.extend(handlebar)
+                    target_tuples.append((field, handlebar, should_replace))
+
+            note_ids = mw.col.db.list("SELECT DISTINCT nid FROM cards WHERE did = ?", deck_id)
+            op = CollectionOp(
+                parent = mw,
+                op = lambda col: anki_util.backfill_notes(col, note_ids, expression_field, reading_field, handlebars, target_tuples)
             )
             
             op.success(anki_util.on_success).run_in_background()
