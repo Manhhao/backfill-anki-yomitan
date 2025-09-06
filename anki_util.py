@@ -9,7 +9,6 @@ from . import yomitan_api
 # https://github.com/wikidattica/reversoanki/pull/1/commits/62f0c9145a5ef7b2bde1dc6dfd5f23a53daac4d0
 # targets is a list of tuples in the format (field, handlebar, should_replace)
 def backfill_notes(col, note_ids, expression_field, reading_field, handlebars, targets):
-    logger.log.info("started backfill")
     logger.log.info(handlebars)
     logger.log.info(targets)
     notes = []
@@ -22,12 +21,12 @@ def backfill_notes(col, note_ids, expression_field, reading_field, handlebars, t
         reading = note[reading_field] if reading_field else None
         api_request = yomitan_api.request_handlebar(note[expression_field].strip(), reading, handlebars)
         if not api_request:
-            logger.log.error(f"api request failed: {note[expression_field].strip()} {reading} {handlebars}")
+            logger.log.error(f"api request failed: {note[expression_field]} {reading} {handlebars}")
             continue
 
         api_fields = api_request.get("fields")
         if not api_fields:
-            logger.log.error(f"api request empty: {note[expression_field].strip()} {reading} {handlebars}")
+            logger.log.error(f"api request empty: {note[expression_field]} {reading} {handlebars}")
             continue
 
         note_updated = False
@@ -44,7 +43,7 @@ def backfill_notes(col, note_ids, expression_field, reading_field, handlebars, t
             if should_replace or not current:
                 data = get_data_from_reading(api_fields, handlebar, reading)
                 if not data:
-                    logger.log.info(f"skipping field {field} for {note[expression_field].strip()} due to api data being empty")
+                    logger.log.info(f"skipping {field} for {note[expression_field]}, api data empty")
                     continue
 
                 # checks if handlebar data contains filename and writes it to anki if present
@@ -65,7 +64,7 @@ def backfill_notes(col, note_ids, expression_field, reading_field, handlebars, t
                 note[field] = data
                 note_updated = True
             else:
-                logger.log.info(f"skipping {t}")
+                logger.log.info(f"skipping {field} for {note[expression_field]}, current {field} not empty")
 
         if note_updated:
             notes.append(note)
