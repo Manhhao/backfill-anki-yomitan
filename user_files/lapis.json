@@ -1,0 +1,32 @@
+{
+    "targets": {
+        "ExpressionFurigana": {
+            "handlebar": "{furigana-plain}",
+            "replace": true
+        },
+        "MainDefinition": {
+            "handlebar": "{single-glossary-jmdict-2025-07-18}",
+            "replace": true
+        },
+        "Glossary": {
+            "handlebar": "{glossary}",
+            "replace": true
+        },
+        "PitchPosition": {
+            "handlebar": "{pitch-accent-positions}",
+            "replace": true
+        },
+        "PitchCategories": {
+            "handlebar": "{pitch-accent-categories}",
+            "replace": true
+        },
+        "Frequency": {
+            "handlebar": "{frequencies}",
+            "replace": true
+        },
+        "FreqSort": {
+            "handlebar": "{frequency-harmonic-rank}",
+            "replace": true
+        }
+    }
+}

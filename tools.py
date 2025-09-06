@@ -32,13 +32,22 @@ class ToolsBackfill:
             self.setWindowTitle("Yomitan Backfill")
 
             self.decks = QComboBox()
-            self.fields = QComboBox()
             self.expression_field = QComboBox()
             self.reading_field = QComboBox()
-            self.yomitan_handlebars = QLineEdit()
             self.apply = QPushButton("Run")
             self.cancel = QPushButton("Cancel")
             self.replace = QCheckBox("Replace")
+            self.tab_widget = QTabWidget()
+
+            # single field widgets
+            self.single_tab = QWidget()
+            self.fields = QComboBox()
+            self.yomitan_handlebars = QLineEdit()
+
+            # preset widgets
+            self.json_tab = QWidget()
+            self.preset = QComboBox()
+            self.open_folder = QPushButton("Open Folder")
 
             form = QFormLayout()
             form.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
@@ -46,24 +55,47 @@ class ToolsBackfill:
             form.addRow(QLabel("Deck:"), self.decks)
             form.addRow(QLabel("Expression Field:"), self.expression_field)
             form.addRow(QLabel("Reading Field:"), self.reading_field)
-            form.addRow(QLabel("Field:"), self.fields)
-            form.addRow(QLabel("Handlebar:"), self.yomitan_handlebars)
+
+            # single field layout
+            form_single_tab = QFormLayout()
+            form_single_tab.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
+            form_single_tab.setLabelAlignment(Qt.AlignmentFlag.AlignLeft)
+            form_single_tab.addRow(QLabel("Field:"), self.fields)
+            form_single_tab.addRow(QLabel("Handlebar:"), self.yomitan_handlebars)
+            form_single_tab.addRow(self.replace)
+            self.single_tab.setLayout(form_single_tab)
+
+            # preset layout
+            form_json_tab = QFormLayout()
+            form_json_tab.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
+            form_json_tab.setLabelAlignment(Qt.AlignmentFlag.AlignLeft)
+            form_json_tab.addRow(QLabel("Preset"), self.preset)
+            self.open_folder.clicked.connect(anki_util.open_user_files_folder)
+            form_json_tab.addRow(self.open_folder)
+            format_hyperlink = QLabel('<a href="https://google.de">Preset Format</a>')
+            format_hyperlink.setOpenExternalLinks(True)
+            form_json_tab.addRow(format_hyperlink)
+            self.json_tab.setLayout(form_json_tab)
+
+            self.tab_widget.addTab(self.single_tab, "Single Field")
+            self.tab_widget.addTab(self.json_tab, "Presets")
 
             buttons = QHBoxLayout()
             buttons.addWidget(self.apply)
             buttons.addWidget(self.cancel)
 
-            checkboxes = QHBoxLayout()
-            checkboxes.addWidget(self.replace)
+            tabs = QHBoxLayout()
+            tabs.addWidget(self.tab_widget)
 
             layout = QVBoxLayout()
             layout.addLayout(form)
-            layout.addLayout(checkboxes)
+            layout.addLayout(tabs)
             layout.addLayout(buttons)
             self.setLayout(layout)
 
             self._load_decks()
             self._update_fields()
+            self._load_presets()
 
             self.decks.currentIndexChanged.connect(self._update_fields)
             self.apply.clicked.connect(self._on_run)
@@ -101,6 +133,10 @@ class ToolsBackfill:
 
             self.reading_field.setCurrentIndex(-1)
         
+        def _load_presets(self):
+            self.preset.clear()
+            self.preset.addItems(anki_util.read_user_files_folder())
+
         def _on_run(self):
             deck_id = self.decks.currentData()
             expression_field = self.expression_field.currentText()

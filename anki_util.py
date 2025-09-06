@@ -64,6 +64,25 @@ def write_media(file):
     except Exception:
         return False
 
+def _get_user_files_dir():
+    addon_dir = os.path.dirname(__file__)
+    user_files_dir = os.path.join(addon_dir, "user_files")
+
+    if not os.path.isdir(user_files_dir):
+        os.makedirs(user_files_dir, exist_ok=True)
+    
+    return user_files_dir
+
+def open_user_files_folder():
+    QDesktopServices.openUrl(QUrl.fromLocalFile(_get_user_files_dir()))
+
+def read_user_files_folder():
+    json_files = [
+        f for f in os.listdir(_get_user_files_dir()) 
+        if f.lower().endswith('.json')
+    ]
+    return sorted(json_files)
+
 def get_data_from_reading(entries, handlebars, reading):
     if reading:
         for entry in entries:
