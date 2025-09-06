@@ -164,7 +164,7 @@ class BrowserBackfill:
 
             op = CollectionOp(
                 parent = mw,
-                op = lambda col: anki_util.backfill_notes(col, self.note_ids, expression_field, reading_field, handlebars, [(field, handlebars, should_replace)])
+                op = lambda col: anki_util.backfill_notes(col, self.note_ids, expression_field, reading_field, [(field, handlebars, should_replace)])
             )
             
             op.success(anki_util.on_success).run_in_background()
@@ -172,7 +172,6 @@ class BrowserBackfill:
         def _run_preset(self):
             expression_field = self.expression_field.currentText()
             reading_field = self.reading_field.currentText()
-            handlebars = []
             target_tuples = []
 
             try:
@@ -183,7 +182,6 @@ class BrowserBackfill:
                     for field, settings in targets.items():
                         handlebar = [p.lstrip("{").rstrip("}") for p in settings.get("handlebar").split(",") if p.strip()]
                         should_replace = settings.get("replace")
-                        handlebars.extend(handlebar)
                         target_tuples.append((field, handlebar, should_replace))
             except json.JSONDecodeError as e:
                 logger.log.error(e.msg)
@@ -200,7 +198,7 @@ class BrowserBackfill:
 
             op = CollectionOp(
                 parent = mw,
-                op = lambda col: anki_util.backfill_notes(col, self.note_ids, expression_field, reading_field, handlebars, target_tuples)
+                op = lambda col: anki_util.backfill_notes(col, self.note_ids, expression_field, reading_field, target_tuples)
             )
             
             op.success(anki_util.on_success).run_in_background()

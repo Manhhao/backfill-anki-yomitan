@@ -8,63 +8,67 @@ from . import yomitan_api
 
 # https://github.com/wikidattica/reversoanki/pull/1/commits/62f0c9145a5ef7b2bde1dc6dfd5f23a53daac4d0
 # targets is a list of tuples in the format (field, handlebar, should_replace)
-def backfill_notes(col, note_ids, expression_field, reading_field, handlebars, targets):
-    logger.log.info(handlebars)
+def backfill_notes(col, note_ids, expression_field, reading_field, targets):
     logger.log.info(targets)
     notes = []
     for nid in note_ids:
         note = col.get_note(nid)
-
         if not expression_field in note:
             continue
+        expression = note[expression_field].strip()
         
+        targets_to_update = []
+        for field, handlebar, should_replace in targets:
+            if not field in note:
+                logger.log.error(f"{field} does not exist in notetype")
+                continue
+            
+            if should_replace or not note[field].strip():
+                targets_to_update.append((field, handlebar, should_replace))
+            else:
+                logger.log.info(f"skipping {field} for {expression}, current {field} not empty")
+
+        if not targets_to_update:
+            logger.log.info(f"skipping {expression}, nothing to update")
+            continue
+
+        handlebars_to_request = [h for t in targets_to_update for h in t[1]]
+
         reading = note[reading_field] if reading_field else None
-        api_request = yomitan_api.request_handlebar(note[expression_field].strip(), reading, handlebars)
+        api_request = yomitan_api.request_handlebar(expression, reading, handlebars_to_request)
         if not api_request:
-            logger.log.error(f"api request failed: {note[expression_field]} {reading} {handlebars}")
+            logger.log.error(f"api request failed: {expression} {reading} {handlebars_to_request}")
             continue
 
         api_fields = api_request.get("fields")
         if not api_fields:
-            logger.log.error(f"api request empty: {note[expression_field]} {reading} {handlebars}")
+            logger.log.error(f"api request empty: {expression} {reading} {handlebars_to_request}")
             continue
 
         note_updated = False
-        for t in targets:
-            field = t[0]
-            handlebar = t[1]
-            should_replace = t[2]
-
-            if not field in note:
-                logger.log.error(f"{field} does not exist in notetype")
+        for field, handlebar, should_replace in targets_to_update:
+            data = get_data_from_reading(api_fields, handlebar, reading)
+            if not data:
+                logger.log.info(f"skipping {field} for {expression}, api data empty")
                 continue
 
-            current = note[field].strip()
-            if should_replace or not current:
-                data = get_data_from_reading(api_fields, handlebar, reading)
-                if not data:
-                    logger.log.info(f"skipping {field} for {note[expression_field]}, api data empty")
-                    continue
-
-                # checks if handlebar data contains filename and writes it to anki if present
-                dictionary_media = api_request.get("dictionaryMedia", [])
-                for file in dictionary_media:
-                    filename = file.get("ankiFilename")
-                    if filename in data:
-                        write_media(file)
+            # checks if handlebar data contains filename and writes it to anki if present
+            dictionary_media = api_request.get("dictionaryMedia", [])
+            for file in dictionary_media:
+                filename = file.get("ankiFilename")
+                if filename in data:
+                    write_media(file)
                             
-                audio_media = api_request.get("audioMedia", [])
-                for file in audio_media:
-                    filename = file.get("ankiFilename")
-                    # if audio handlebar is requested, handlebar data contains the relevant audio filename, write only that file
-                    if filename in data:
-                        write_media(file)
-                        break
+            audio_media = api_request.get("audioMedia", [])
+            for file in audio_media:
+                filename = file.get("ankiFilename")
+                # if audio handlebar is requested, handlebar data contains the relevant audio filename, write only that file
+                if filename in data:
+                    write_media(file)
+                    break
                     
-                note[field] = data
-                note_updated = True
-            else:
-                logger.log.info(f"skipping {field} for {note[expression_field]}, current {field} not empty")
+            note[field] = data
+            note_updated = True
 
         if note_updated:
             notes.append(note)
