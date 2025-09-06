@@ -6,44 +6,64 @@ from aqt.qt import *
 from . import yomitan_api  
 
 # https://github.com/wikidattica/reversoanki/pull/1/commits/62f0c9145a5ef7b2bde1dc6dfd5f23a53daac4d0
-def backfill_notes(col, note_ids, expression_field, reading_field, field, handlebars, should_replace):
+# targets is a list of tuples in the format (field, handlebar, should_replace)
+def backfill_notes(col, note_ids, expression_field, reading_field, handlebars, targets):
+    print(handlebars)
+    print(targets)
     notes = []
     for nid in note_ids:
         note = col.get_note(nid)
-        if not expression_field in note or not field in note:
+
+        if not expression_field in note:
+            continue
+        
+        reading = note[reading_field] if reading_field else None
+        api_request = yomitan_api.request_handlebar(note[expression_field].strip(), reading, handlebars)
+        if not api_request:
+            print(f"api request failed: {note[expression_field].strip()} {reading} {handlebars}")
             continue
 
-        current = note[field].strip()
-        if should_replace or not current:
-            reading = note[reading_field] if reading_field else None
-            api_request = yomitan_api.request_handlebar(note[expression_field].strip(), reading, handlebars)
-            if not api_request:
+        api_fields = api_request.get("fields")
+        if not api_fields:
+            print("api request empty")
+            continue
+
+        note_updated = False
+        print(targets)
+        for t in targets:
+            field = t[0]
+            handlebar = t[1]
+            should_replace = t[2]
+
+            if not field in note:
+                print(f"specified field {field} does not exist")
                 continue
 
-            fields = api_request.get("fields")
-            if not fields:
-                continue
+            current = note[field].strip()
+            if should_replace or not current:
+                data = get_data_from_reading(api_fields, handlebar, reading)
+                if not data:
+                    continue
 
-            data = get_data_from_reading(fields, handlebars, reading)
-            if not data:
-                continue
+                # checks if handlebar data contains filename and writes it to anki if present
+                dictionary_media = api_request.get("dictionaryMedia", [])
+                for file in dictionary_media:
+                    filename = file.get("ankiFilename")
+                    if filename in data:
+                        write_media(file)
+                            
+                audio_media = api_request.get("audioMedia", [])
+                for file in audio_media:
+                    filename = file.get("ankiFilename")
+                    # if audio handlebar is requested, handlebar data contains the relevant audio filename, write only that file
+                    if filename in data:
+                        write_media(file)
+                        break
+                    
+                note[field] = data
+                note_updated = True
 
-            # checks if handlebar data contains filename and writes it to anki if present
-            dictionary_media = api_request.get("dictionaryMedia", [])
-            for file in dictionary_media:
-                filename = file.get("ankiFilename")
-                if filename in data:
-                    write_media(file)
-                        
-            audio_media = api_request.get("audioMedia", [])
-            for file in audio_media:
-                filename = file.get("ankiFilename")
-                # if audio handlebar is requested, handlebar data contains the relevant audio filename, write only that file
-                if filename in data:
-                    write_media(file)
-                    break
-
-            note[field] = data
+        if note_updated:
             notes.append(note)
             
     return OpChangesWithCount(changes=col.update_notes(notes), count=len(notes))
@@ -64,6 +84,25 @@ def write_media(file):
     except Exception:
         return False
 
+def get_user_files_dir():
+    addon_dir = os.path.dirname(__file__)
+    user_files_dir = os.path.join(addon_dir, "user_files")
+
+    if not os.path.isdir(user_files_dir):
+        os.makedirs(user_files_dir, exist_ok=True)
+    
+    return user_files_dir
+
+def open_user_files_folder():
+    QDesktopServices.openUrl(QUrl.fromLocalFile(get_user_files_dir()))
+
+def read_user_files_folder():
+    json_files = [
+        f for f in os.listdir(get_user_files_dir()) 
+        if f.lower().endswith('.json')
+    ]
+    return sorted(json_files)
+
 def get_data_from_reading(entries, handlebars, reading):
     if reading:
         for entry in entries:
@@ -74,5 +113,4 @@ def get_data_from_reading(entries, handlebars, reading):
         return "".join(entries[0].get(h, "") for h in handlebars)
             
 def on_success(result):
-    mw.col.reset()
     showInfo(f"Updated {result.count} cards")

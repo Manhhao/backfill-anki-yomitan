@@ -21,13 +21,34 @@ Make sure your Browser is running and the API is working.
 
 **General Steps**
 1. For `Expression Field` choose the expression field (e.g. `Expression` in Lapis) of your note type, this is the field that will be queried into Yomitan.
-2. Optionally choose a `Reading Field` (e.g. ExpressionReading in Lapis) to differentiate expressions using their reading. If left blank, the add-on uses the first result Yomitan returns.
+2. Optionally choose a `Reading Field` (e.g. `ExpressionReading` in Lapis) to differentiate expressions using their reading. If left blank, the add-on uses the first result Yomitan returns.
 3. For `Field` choose the field to backfilled.
 4. In `Handlebar` type in the Yomitan handlebar, from which you wish to pull data from (e.g. `frequency-harmonic-rank`). You can concatenate multiple handlebars using a `,` (e.g. `single-glossary-jmdict-2025-08-08,single-glossary-デジタル大辞泉`)
 5. Optionally tick `Replace` if you wish to replace the current content of the field in every card.
 6. Press `Run`.
 
 Changes can be undone with `Edit -> Undo` or with `CTRL + Z`.
+
+## Presets
+You can backfill multiple fields using a .json preset. Presets are stored in the `user_files` folder in the addon directory. An example can be found [here](https://github.com/Manhhao/backfill-anki-yomitan/tree/main/user_files/lapis.json).
+
+Format:
+```
+{
+    "targets": {
+        "FieldName": {
+            "handlebar": "handlebar",
+            "replace": "true"
+        },
+        "FieldName2": {
+            "handlebar": "handlebar2,handlebar3",
+            "replace": "false"
+        },
+        ...
+    }
+}
+```
+`handlebar` and `replace` behave identically to above.
 
 ## Config
 
