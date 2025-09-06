@@ -2,8 +2,9 @@ from aqt import mw
 from aqt.operations import CollectionOp
 from aqt.utils import showWarning
 from aqt.qt import *
-from . import yomitan_api  
 from . import anki_util  
+from . import logger
+from . import yomitan_api  
 import json
 
 class ToolsBackfill:
@@ -139,6 +140,7 @@ class ToolsBackfill:
             self.preset.addItems(anki_util.read_user_files_folder())
 
         def _on_run(self):
+            logger.log.info(f"started tools backfill on {self.decks.currentText()}")
             if self.tab_widget.currentIndex() == 0:
                 self._run_single_field()
             else:
@@ -167,16 +169,28 @@ class ToolsBackfill:
             reading_field = self.reading_field.currentText()
             handlebars = []
             target_tuples = []
-
-            path = os.path.join(anki_util.get_user_files_dir(), self.preset.currentText())
-            with open(path) as f:
-                preset = json.load(f)
-                targets = preset.get("targets")
-                for field, settings in targets.items():
-                    handlebar = [p.lstrip("{").rstrip("}") for p in settings.get("handlebar").split(",") if p.strip()]
-                    should_replace = settings.get("replace")
-                    handlebars.extend(handlebar)
-                    target_tuples.append((field, handlebar, should_replace))
+            try:
+                path = os.path.join(anki_util.get_user_files_dir(), self.preset.currentText())
+                with open(path) as f:
+                    preset = json.load(f)
+                    targets = preset.get("targets")
+                    for field, settings in targets.items():
+                        handlebar = [p.lstrip("{").rstrip("}") for p in settings.get("handlebar").split(",") if p.strip()]
+                        should_replace = settings.get("replace")
+                        handlebars.extend(handlebar)
+                        target_tuples.append((field, handlebar, should_replace))
+            except json.JSONDecodeError as e:
+                logger.log.error(e.msg)
+                showWarning("json: The selected .json file contains errors.<br>Check the log for more information.")
+                return
+            except AttributeError as e:
+                logger.log.error(e)
+                showWarning("json: Preset file is missing key (targets, handlebar or replace).")
+                return
+            except Exception as e:
+                logger.log.error(e)
+                showWarning(e)
+                return
 
             note_ids = mw.col.db.list("SELECT DISTINCT nid FROM cards WHERE did = ?", deck_id)
             op = CollectionOp(

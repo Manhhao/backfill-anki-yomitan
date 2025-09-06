@@ -1,6 +1,7 @@
 import json
 import urllib
 from aqt import mw
+from . import logger
 from urllib.error import HTTPError, URLError
 
 request_url = ""
@@ -46,11 +47,12 @@ def request_handlebar(expression, reading, handlebars):
         data = json.loads(response.read())
     except HTTPError as e:
         if e.code == 500:
-            # this throws if the handlebar does not exist for specified term
+            logger.log.error(f"http 500: request using {markers}")
             return None
         else:
             raise
     except URLError as e:
+        logger.log.error(e.reason)
         raise ConnectionRefusedError(f"Request to Yomitan API failed: {e.reason}")
     
     return data
@@ -61,6 +63,7 @@ def ping_yomitan():
     try:
         response = urllib.request.urlopen(req, timeout=ping_timeout)  
         data = json.loads(response.read())
+        logger.log.info(data)
         return data
     except Exception:
         return False

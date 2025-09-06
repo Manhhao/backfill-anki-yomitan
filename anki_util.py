@@ -3,13 +3,14 @@ from aqt import mw
 from aqt.operations import OpChangesWithCount
 from aqt.utils import showInfo
 from aqt.qt import *
+from . import logger
 from . import yomitan_api  
 
 # https://github.com/wikidattica/reversoanki/pull/1/commits/62f0c9145a5ef7b2bde1dc6dfd5f23a53daac4d0
 # targets is a list of tuples in the format (field, handlebar, should_replace)
 def backfill_notes(col, note_ids, expression_field, reading_field, handlebars, targets):
-    print(handlebars)
-    print(targets)
+    logger.log.info(handlebars)
+    logger.log.info(targets)
     notes = []
     for nid in note_ids:
         note = col.get_note(nid)
@@ -20,29 +21,29 @@ def backfill_notes(col, note_ids, expression_field, reading_field, handlebars, t
         reading = note[reading_field] if reading_field else None
         api_request = yomitan_api.request_handlebar(note[expression_field].strip(), reading, handlebars)
         if not api_request:
-            print(f"api request failed: {note[expression_field].strip()} {reading} {handlebars}")
+            logger.log.error(f"api request failed: {note[expression_field]} {reading} {handlebars}")
             continue
 
         api_fields = api_request.get("fields")
         if not api_fields:
-            print("api request empty")
+            logger.log.error(f"api request empty: {note[expression_field]} {reading} {handlebars}")
             continue
 
         note_updated = False
-        print(targets)
         for t in targets:
             field = t[0]
             handlebar = t[1]
             should_replace = t[2]
 
             if not field in note:
-                print(f"specified field {field} does not exist")
+                logger.log.error(f"{field} does not exist in notetype")
                 continue
 
             current = note[field].strip()
             if should_replace or not current:
                 data = get_data_from_reading(api_fields, handlebar, reading)
                 if not data:
+                    logger.log.info(f"skipping {field} for {note[expression_field]}, api data empty")
                     continue
 
                 # checks if handlebar data contains filename and writes it to anki if present
@@ -62,6 +63,8 @@ def backfill_notes(col, note_ids, expression_field, reading_field, handlebars, t
                     
                 note[field] = data
                 note_updated = True
+            else:
+                logger.log.info(f"skipping {field} for {note[expression_field]}, current {field} not empty")
 
         if note_updated:
             notes.append(note)
@@ -113,4 +116,6 @@ def get_data_from_reading(entries, handlebars, reading):
         return "".join(entries[0].get(h, "") for h in handlebars)
             
 def on_success(result):
-    showInfo(f"Updated {result.count} cards")
+    m = f"Updated {result.count} cards"
+    logger.log.info(m)
+    showInfo(m)
