@@ -77,9 +77,9 @@ Default: `19633`
 ## Issues
 If you installed the Yomitan API before 07/29/2025, the default port of the API has been changed. You can either reinstall the API (recommended), or change `yomitan_api_port` to `8766` in the config.
 
-The addon has been updated to support the changes to the API in Yomitan 25.7.14.1, previous versions of Yomitan are not supported anymore.
+If you're backfilling audio, please be aware that retrieving audio, depending on the audio sources configured in Yomitan, can be quite slow.
 
-If you're backfilling audio, please be aware that retrieving audio - depending on the audio sources configured in Yomitan - can be quite slow.
+If you encounter any issues, please report them on GitHub or in the add-on's TMW `#resources-sharing` thread. Please attach the log file `backfill-log.log`, which can be found in the add-on's `user_files` directory.
 
 ## Screenshot
 ![screenshot](https://github.com/Manhhao/backfill-anki-yomitan/blob/main/screenshot/image.png?raw=true)

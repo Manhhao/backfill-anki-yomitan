@@ -2,7 +2,7 @@ import logging
 import os
 
 addon_dir = os.path.dirname(__file__)
-log_file_path = os.path.join(addon_dir, "user_files", "addon.log")
+log_file_path = os.path.join(addon_dir, "user_files", "backfill-log.log")
 os.makedirs(os.path.dirname(log_file_path), exist_ok=True)
 
 log = logging.getLogger("backfill-anki-yomitan")
