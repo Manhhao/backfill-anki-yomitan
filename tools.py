@@ -155,9 +155,10 @@ class ToolsBackfill:
             should_replace = self.replace.isChecked()
             
             note_ids = mw.col.db.list("SELECT DISTINCT nid FROM cards WHERE did = ?", deck_id)
+            t = (field, handlebars, should_replace)    
             op = CollectionOp(
                 parent = mw,
-                op = lambda col: anki_util.backfill_notes(col, note_ids, expression_field, reading_field, [(field, handlebars, should_replace)])
+                op = lambda col: anki_util.backfill_notes(col, note_ids, expression_field, reading_field, handlebars, [t])
             )
             
             op.success(anki_util.on_success).run_in_background()
@@ -166,6 +167,7 @@ class ToolsBackfill:
             deck_id = self.decks.currentData()
             expression_field = self.expression_field.currentText()
             reading_field = self.reading_field.currentText()
+            handlebars = []
             target_tuples = []
             try:
                 path = os.path.join(anki_util.get_user_files_dir(), self.preset.currentText())
@@ -175,6 +177,7 @@ class ToolsBackfill:
                     for field, settings in targets.items():
                         handlebar = [p.lstrip("{").rstrip("}") for p in settings.get("handlebar").split(",") if p.strip()]
                         should_replace = settings.get("replace")
+                        handlebars.extend(handlebar)
                         target_tuples.append((field, handlebar, should_replace))
             except json.JSONDecodeError as e:
                 logger.log.error(e.msg)
@@ -192,7 +195,7 @@ class ToolsBackfill:
             note_ids = mw.col.db.list("SELECT DISTINCT nid FROM cards WHERE did = ?", deck_id)
             op = CollectionOp(
                 parent = mw,
-                op = lambda col: anki_util.backfill_notes(col, note_ids, expression_field, reading_field, target_tuples)
+                op = lambda col: anki_util.backfill_notes(col, note_ids, expression_field, reading_field, handlebars, target_tuples)
             )
             
             op.success(anki_util.on_success).run_in_background()
