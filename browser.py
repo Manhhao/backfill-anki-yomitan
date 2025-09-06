@@ -149,7 +149,7 @@ class BrowserBackfill:
             self.preset.addItems(anki_util.read_user_files_folder())
 
         def _on_run(self):
-            logger.log.info(f"started browser backfill on {self.decks.currentData}")
+            logger.log.info(f"started browser backfill on {self.decks.text()}")
             if self.tab_widget.currentIndex() == 0:
                 self._run_single_field()
             else:
@@ -187,14 +187,15 @@ class BrowserBackfill:
                         target_tuples.append((field, handlebar, should_replace))
             except json.JSONDecodeError as e:
                 logger.log.error(e.msg)
-                showWarning("The selected .json file contains errors.<br>Check the log for more information.")
+                showWarning("json: The selected .json file contains errors.<br>Check the log for more information.")
                 return
             except AttributeError as e:
-                logger.log.error(e.msg)
-                showWarning("One or more Field(s) are missing keys (handlebar or replace).")
+                logger.log.error(e)
+                showWarning("json: One or more Field(s) are missing keys (handlebar or replace).")
                 return
             except Exception as e:
-                logger.log.error(e.msg)
+                logger.log.error(e)
+                showWarning(e)
                 return
 
             op = CollectionOp(

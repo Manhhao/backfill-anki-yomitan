@@ -36,7 +36,7 @@ def backfill_notes(col, note_ids, expression_field, reading_field, handlebars, t
             should_replace = t[2]
 
             if not field in note:
-                logger.log.error(f"field {field} does not exist in notetype")
+                logger.log.error(f"{field} does not exist in notetype")
                 continue
 
             current = note[field].strip()

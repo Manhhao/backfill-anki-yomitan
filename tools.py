@@ -140,7 +140,7 @@ class ToolsBackfill:
             self.preset.addItems(anki_util.read_user_files_folder())
 
         def _on_run(self):
-            logger.log.info(f"started tools backfill on {self.decks.currentData}")
+            logger.log.info(f"started tools backfill on {self.decks.currentText()}")
             if self.tab_widget.currentIndex() == 0:
                 self._run_single_field()
             else:
@@ -181,15 +181,15 @@ class ToolsBackfill:
                         target_tuples.append((field, handlebar, should_replace))
             except json.JSONDecodeError as e:
                 logger.log.error(e.msg)
-                showWarning("The selected .json file contains errors.<br>Check the log for more information.")
+                showWarning("json: The selected .json file contains errors.<br>Check the log for more information.")
                 return
             except AttributeError as e:
-                logger.log.error(e.msg)
-                showWarning("Preset file is missing key (targets, handlebar or replace).")
+                logger.log.error(e)
+                showWarning("json: Preset file is missing key (targets, handlebar or replace).")
                 return
             except Exception as e:
-                logger.log.error(e.msg)
-                showWarning(e.msg)
+                logger.log.error(e)
+                showWarning(e)
                 return
 
             note_ids = mw.col.db.list("SELECT DISTINCT nid FROM cards WHERE did = ?", deck_id)
