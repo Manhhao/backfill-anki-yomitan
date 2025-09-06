@@ -91,7 +91,7 @@ class BrowserBackfill:
             form_json_tab.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
             form_json_tab.setLabelAlignment(Qt.AlignmentFlag.AlignLeft)
             form_json_tab.addRow(QLabel("Preset"), self.preset)
-            format_hyperlink = QLabel('<a href="https://google.de">Preset Format</a>')
+            format_hyperlink = QLabel('<a href="https://github.com/Manhhao/backfill-anki-yomitan?tab=readme-ov-file#presets">Preset Format</a>')
             format_hyperlink.setOpenExternalLinks(True)
             form_json_tab.addRow(format_hyperlink)
             form_json_tab.addRow(self.open_folder)
