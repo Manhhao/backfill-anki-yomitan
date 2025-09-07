@@ -20,7 +20,6 @@ class ToolsBackfill:
         
         dlg = self.ToolsDialog(mw)
         dlg.resize(350, dlg.height())
-
         if hasattr(dlg, "exec_"):
             # qt5
             dlg.exec_()
@@ -31,6 +30,8 @@ class ToolsBackfill:
     class ToolsDialog(QDialog):
         def __init__(self, parent):
             super().__init__(parent)
+            logger.setup_logging()
+            self.finished.connect(lambda: logger.shutdown_logging())
             self.setWindowTitle("Yomitan Backfill")
 
             self.decks = QComboBox()

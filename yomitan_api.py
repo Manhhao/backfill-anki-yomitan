@@ -63,7 +63,6 @@ def ping_yomitan():
     try:
         response = urllib.request.urlopen(req, timeout=ping_timeout)  
         data = json.loads(response.read())
-        logger.log.info(data)
         return data
     except Exception:
         return False
