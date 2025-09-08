@@ -40,6 +40,8 @@ class BrowserBackfill:
     class BrowserDialog(QDialog):
         def __init__(self, parent, selected_note_ids):
             super().__init__(parent)
+            logger.setup_logging()
+            self.finished.connect(lambda: logger.shutdown_logging())
             self.setWindowTitle("Yomitan Backfill")
             self.note_ids = selected_note_ids
 
