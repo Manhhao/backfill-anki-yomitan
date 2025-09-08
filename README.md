@@ -75,7 +75,7 @@ Default: `127.0.0.1`
 Default: `19633`
 
 ## Issues
-If you're having issues updating please see [this](https://github.com/Manhhao/backfill-anki-yomitan/issues/16)
+If you're having issues updating please see [this](https://github.com/Manhhao/backfill-anki-yomitan/issues/16).
 
 If you're backfilling audio, please be aware that retrieving audio, depending on the audio sources configured in Yomitan, can be quite slow.
 
