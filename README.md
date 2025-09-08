@@ -75,7 +75,7 @@ Default: `127.0.0.1`
 Default: `19633`
 
 ## Issues
-If you installed the Yomitan API before 07/29/2025, the default port of the API has been changed. You can either reinstall the API (recommended), or change `yomitan_api_port` to `8766` in the config.
+If you're having issues updating please see [this](https://github.com/Manhhao/backfill-anki-yomitan/issues/16)
 
 If you're backfilling audio, please be aware that retrieving audio, depending on the audio sources configured in Yomitan, can be quite slow.
 
