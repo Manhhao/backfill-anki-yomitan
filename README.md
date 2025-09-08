@@ -74,6 +74,8 @@ Default: `127.0.0.1`
 
 Default: `19633`
 
+For old Yomitan API installations, change the port to `8766` or reinstall (recommended).
+
 ## Issues
 If you're having issues updating please see [this](https://github.com/Manhhao/backfill-anki-yomitan/issues/16).
 
