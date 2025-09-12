@@ -197,11 +197,11 @@ class BrowserBackfill:
                         target_tuples.append((field, handlebar, should_replace))
             except json.JSONDecodeError as e:
                 logger.log.error(e.msg)
-                showWarning(f"Preset '{field}' contains errors.<br>Check the log for more information.")
+                showWarning(f"Preset '{self.preset.currentText()}' contains errors.<br>Check the log for more information.")
                 return
             except AttributeError as e:
                 logger.log.error(e)
-                showWarning(f"Preset '{field}' is missing key (targets, handlebar or replace).<br>Check the log for more information.")
+                showWarning(f"Preset '{self.preset.currentText()}' is missing key (targets, handlebar or replace).<br>Check the log for more information.")
                 return
             except Exception as e:
                 logger.log.error(e)
