@@ -1,4 +1,5 @@
 import json
+import socket
 import urllib
 from aqt import mw
 from . import logger
@@ -50,7 +51,11 @@ def request_handlebar(expression, reading, handlebars):
             logger.log.error(f"http 500: request using {markers}")
             return None
         else:
+            logger.log.error(e)
             raise
+    except socket.timeout:
+        logger.log.error(f"request using '{markers}' timed out for '{expression}'")
+        return None
     except URLError as e:
         logger.log.error(e.reason)
         raise ConnectionRefusedError(f"Request to Yomitan API failed: {e.reason}")

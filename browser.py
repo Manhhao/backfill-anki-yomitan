@@ -183,15 +183,25 @@ class BrowserBackfill:
                     targets = preset.get("targets")
                     for field, settings in targets.items():
                         handlebar = [p.lstrip("{").rstrip("}") for p in settings.get("handlebar").split(",") if p.strip()]
+                        if not handlebar:
+                            logger.log.error(f"handlebar for '{field}' empty in '{self.preset.currentText()}'")
+                            showWarning(f"Handlebar for '{field}' should not be empty.<br>Please edit your preset file.")
+                            return
+
                         should_replace = settings.get("replace")
+                        if not isinstance(should_replace, bool):
+                            logger.log.error(f"'replace' for '{field}' not boolean in '{self.preset.currentText()}'")
+                            showWarning(f"'replace' for '{field}' must be boolean ('true' or 'false', without quotes).<br>Please edit your preset file.")
+                            return
+
                         target_tuples.append((field, handlebar, should_replace))
             except json.JSONDecodeError as e:
                 logger.log.error(e.msg)
-                showWarning("json: The selected .json file contains errors.<br>Check the log for more information.")
+                showWarning(f"Preset '{field}' contains errors.<br>Check the log for more information.")
                 return
             except AttributeError as e:
                 logger.log.error(e)
-                showWarning("json: One or more Field(s) are missing keys (handlebar or replace).")
+                showWarning(f"Preset '{field}' is missing key (targets, handlebar or replace).<br>Check the log for more information.")
                 return
             except Exception as e:
                 logger.log.error(e)
