@@ -16,11 +16,13 @@ def read_config():
     global request_url
     global max_entries
     global reading_handlebar
+    global request_timeout
     cfg = mw.addonManager.getConfig(__name__)
 
     request_url = f"http://{cfg['yomitan_api_ip']}:{cfg['yomitan_api_port']}"
     max_entries = cfg["max_entries"]
     reading_handlebar = cfg["reading_handlebar"]
+    request_timeout = cfg["yomitan_api_timeout"]
 
 # https://github.com/Kuuuube/yomitan-api/blob/master/docs/api_paths/ankiFields.md
 def request_handlebar(expression, reading, handlebars):

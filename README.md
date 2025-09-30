@@ -76,6 +76,10 @@ Default: `127.0.0.1`
 
 Default: `19633`
 
+`yomitan_api_timeout`
+
+Default: `10`
+
 ## Issues
 If you're having issues updating please see [this](https://github.com/Manhhao/backfill-anki-yomitan/issues/16).
 
