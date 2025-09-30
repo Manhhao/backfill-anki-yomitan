@@ -1,4 +1,5 @@
 import json
+import socket
 import urllib
 from aqt import mw
 from . import logger
@@ -15,11 +16,13 @@ def read_config():
     global request_url
     global max_entries
     global reading_handlebar
+    global request_timeout
     cfg = mw.addonManager.getConfig(__name__)
 
     request_url = f"http://{cfg['yomitan_api_ip']}:{cfg['yomitan_api_port']}"
     max_entries = cfg["max_entries"]
     reading_handlebar = cfg["reading_handlebar"]
+    request_timeout = cfg["yomitan_api_timeout"]
 
 # https://github.com/Kuuuube/yomitan-api/blob/master/docs/api_paths/ankiFields.md
 def request_handlebar(expression, reading, handlebars):
@@ -50,7 +53,11 @@ def request_handlebar(expression, reading, handlebars):
             logger.log.error(f"http 500: request using {markers}")
             return None
         else:
+            logger.log.error(e)
             raise
+    except socket.timeout:
+        logger.log.error(f"request using '{markers}' timed out for '{expression}'")
+        return None
     except URLError as e:
         logger.log.error(e.reason)
         raise ConnectionRefusedError(f"Request to Yomitan API failed: {e.reason}")

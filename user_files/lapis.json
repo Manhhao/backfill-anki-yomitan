@@ -2,31 +2,31 @@
     "targets": {
         "ExpressionFurigana": {
             "handlebar": "{furigana-plain}",
-            "replace": true
+            "replace": false
         },
         "MainDefinition": {
             "handlebar": "{single-glossary-jmdict-2025-08-08}",
-            "replace": true
+            "replace": false
         },
         "Glossary": {
             "handlebar": "{glossary}",
-            "replace": true
+            "replace": false
         },
         "PitchPosition": {
             "handlebar": "{pitch-accent-positions}",
-            "replace": true
+            "replace": false
         },
         "PitchCategories": {
             "handlebar": "{pitch-accent-categories}",
-            "replace": true
+            "replace": false
         },
         "Frequency": {
             "handlebar": "{frequencies}",
-            "replace": true
+            "replace": false
         },
         "FreqSort": {
             "handlebar": "{frequency-harmonic-rank}",
-            "replace": true
+            "replace": false
         }
     }
 }

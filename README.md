@@ -30,25 +30,27 @@ Make sure your Browser is running and the API is working.
 Changes can be undone with `Edit -> Undo` or with `CTRL + Z`.
 
 ## Presets
-You can backfill multiple fields using a .json preset. Presets are stored in the `user_files` folder in the addon directory. An example can be found [here](https://github.com/Manhhao/backfill-anki-yomitan/tree/main/user_files/lapis.json).
+You can backfill multiple fields using a `.json` preset. Presets are stored in the `user_files` folder in the addon directory. An example for [Lapis](https://github.com/donkuri/lapis?tab=readme-ov-file#how-to-use-lapis) is included and can be found [here](https://github.com/Manhhao/backfill-anki-yomitan/tree/main/user_files/lapis.json).
 
 Format:
 ```
 {
     "targets": {
         "FieldName": {
-            "handlebar": "handlebar",
-            "replace": "true"
+            "handlebar": "{handlebar}",
+            "replace": true
         },
         "FieldName2": {
-            "handlebar": "handlebar2,handlebar3",
-            "replace": "false"
+            "handlebar": "{handlebar2},{handlebar3}",
+            "replace": false
         },
         ...
     }
 }
 ```
 `handlebar` and `replace` behave identically to above.
+
+Make sure every handlebar in the preset is a valid handlebar in Yomitan. Otherwise backfilling will fail, because all handlebars are requested in a single API call. For the included `Lapis` preset, this means adjusting the `MainDefinition` handlebar to the one matching your preferred dictionary.
 
 ## Config
 
@@ -74,12 +76,16 @@ Default: `127.0.0.1`
 
 Default: `19633`
 
+`yomitan_api_timeout`
+
+Default: `10`
+
 ## Issues
-If you're having issues updating please see [this](https://github.com/Manhhao/backfill-anki-yomitan/issues/16)
+If you're having issues updating please see [this](https://github.com/Manhhao/backfill-anki-yomitan/issues/16).
 
-If you're backfilling audio, please be aware that retrieving audio, depending on the audio sources configured in Yomitan, can be quite slow.
+If you're backfilling audio, please be aware that retrieving audio, depending on the audio sources configured in Yomitan, can be quite slow. You can reduce the time by decreasing `max_entries` in the config.
 
-If you encounter any issues, please report them on GitHub or in the add-on's TMW `#resources-sharing` thread. Please attach the log file `backfill-log.log`, which can be found in the add-on's `user_files` directory.
+If you encounter any issues, please report them on GitHub or in the add-on's TMW `#resources-sharing` thread. Please attach the `backfill-log.log` file, which can be found in the add-on's `user_files` directory.
 
 ## Screenshot
 ![screenshot](https://github.com/Manhhao/backfill-anki-yomitan/blob/main/screenshot/image.png?raw=true)
