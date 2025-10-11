@@ -11,7 +11,7 @@ class BrowserBackfill:
 
     def _open_browser_dialog(self, browser: Browser):
         if not yomitan_api.ping_yomitan():
-            showWarning('Unable to reach Yomitan API<br><a href="https://github.com/Manhhao/backfill-anki-yomitan?tab=readme-ov-file#issues">Check if you need to update your API</a>')
+            showWarning('Unable to reach Yomitan API')
             return
         
         selected_note_ids = list(browser.selectedNotes())

@@ -12,7 +12,7 @@ class ToolsBackfill:
 
     def _open_dialog(self):
         if not yomitan_api.ping_yomitan():
-            showWarning('Unable to reach Yomitan API<br><a href="https://github.com/Manhhao/backfill-anki-yomitan?tab=readme-ov-file#issues">Check if you need to update your API</a>')
+            showWarning('Unable to reach Yomitan API')
             return
         
         dlg = self.ToolsDialog(mw)
