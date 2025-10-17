@@ -35,9 +35,11 @@ def backfill_notes(col, note_ids, expression_field, reading_field, targets):
             logger.log.error(f"api request invalid: {expression} {reading} {handlebars_to_request}")
             continue
 
+        handlebar_data = get_data_from_reading(api_fields, reading)
+
         note_updated = False
         for field, handlebar in targets_to_update:
-            data = get_data_from_reading(api_fields, handlebar, reading)
+            data = "".join(handlebar_data.get(h, "") for h in handlebar)
             if not data:
                 logger.log.error(f"skipping {field} for {expression} {reading}, invalid api data")
                 continue
@@ -76,6 +78,8 @@ def filter_targets(targets, note, expression):
             result.append((field, handlebar))
         else:
             logger.log.info(f"skipping {field} for {expression}, current {field} not empty")
+            
+    return result
 
 def write_media(file):
     try:
@@ -112,16 +116,14 @@ def read_user_files_folder():
     ]
     return sorted(json_files)
 
-def get_data_from_reading(entries, handlebars, reading):
+def get_data_from_reading(entries, reading):
     if reading:
         for entry in entries:
             if entry.get(yomitan_api.reading_handlebar) == reading:
-                return "".join(entry.get(h, "") for h in handlebars)
-            else:
-                logger.log.info(f"{reading} does not match {yomitan_api.reading_handlebar}")
+                return entry
         return None
     else:
-        return "".join(entries[0].get(h, "") for h in handlebars)
+        return entries[0]
             
 def on_success(result):
     m = f"Updated {result.count} cards"
