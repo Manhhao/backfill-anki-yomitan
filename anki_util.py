@@ -17,17 +17,7 @@ def backfill_notes(col, note_ids, expression_field, reading_field, targets):
             continue
         expression = note[expression_field].strip()
         
-        targets_to_update = []
-        for field, handlebar, should_replace in targets:
-            if not field in note:
-                logger.log.error(f"{field} does not exist in notetype")
-                continue
-            
-            if should_replace or not note[field].strip():
-                targets_to_update.append((field, handlebar, should_replace))
-            else:
-                logger.log.info(f"skipping {field} for {expression}, current {field} not empty")
-
+        targets_to_update = filter_targets(targets, note, expression)
         if not targets_to_update:
             logger.log.info(f"skipping {expression}, nothing to update")
             continue
@@ -42,17 +32,17 @@ def backfill_notes(col, note_ids, expression_field, reading_field, targets):
 
         api_fields = api_request.get("fields")
         if not api_fields:
-            logger.log.error(f"api request empty: {expression} {reading} {handlebars_to_request}")
+            logger.log.error(f"api request invalid: {expression} {reading} {handlebars_to_request}")
             continue
 
         note_updated = False
-        for field, handlebar, should_replace in targets_to_update:
+        for field, handlebar in targets_to_update:
             data = get_data_from_reading(api_fields, handlebar, reading)
             if not data:
-                logger.log.info(f"skipping {field} for {expression}, api data empty")
+                logger.log.error(f"skipping {field} for {expression} {reading}, invalid api data")
                 continue
 
-            # checks if handlebar data contains filename and writes it to anki if present
+            # check if handlebar data contains filename and write to anki if present
             dictionary_media = api_request.get("dictionaryMedia", [])
             for file in dictionary_media:
                 filename = file.get("ankiFilename")
@@ -62,7 +52,7 @@ def backfill_notes(col, note_ids, expression_field, reading_field, targets):
             audio_media = api_request.get("audioMedia", [])
             for file in audio_media:
                 filename = file.get("ankiFilename")
-                # if audio handlebar is requested, handlebar data contains the relevant audio filename, write only that file
+                # if audio handlebar is requested, handlebar data contains a single filename
                 if filename in data:
                     write_media(file)
                     break
@@ -74,6 +64,18 @@ def backfill_notes(col, note_ids, expression_field, reading_field, targets):
             notes.append(note)
             
     return OpChangesWithCount(changes=col.update_notes(notes), count=len(notes))
+
+def filter_targets(targets, note, expression):
+    result = []
+    for field, handlebar, should_replace in targets:
+        if not field in note:
+            logger.log.error(f"{field} does not exist in notetype")
+            continue
+            
+        if should_replace or not note[field].strip():
+            result.append((field, handlebar))
+        else:
+            logger.log.info(f"skipping {field} for {expression}, current {field} not empty")
 
 def write_media(file):
     try:
@@ -115,6 +117,8 @@ def get_data_from_reading(entries, handlebars, reading):
         for entry in entries:
             if entry.get(yomitan_api.reading_handlebar) == reading:
                 return "".join(entry.get(h, "") for h in handlebars)
+            else:
+                logger.log.info(f"{reading} does not match {yomitan_api.reading_handlebar}")
         return None
     else:
         return "".join(entries[0].get(h, "") for h in handlebars)
