@@ -68,6 +68,9 @@ def backfill_notes(col, note_ids, expression_field, reading_field, targets):
         if note_updated:
             notes.append(note)
 
+        if mw.progress.want_cancel():
+            raise Exception("Backfilling cancelled<br>No cards were updated but you might need to deleted unused media.")
+
         # https://forums.ankiweb.net/t/custom-progress-updates-not-showing-up-in-collectionop-run-in-sync-did-finish/55301/7
         mw.taskman.run_on_main(
             lambda: mw.progress.update(
@@ -136,8 +139,13 @@ def get_data_from_reading(entries, reading):
         return None
     else:
         return entries[0]
-            
+
 def on_success(result):
     m = f"Updated {result.count} cards"
+    logger.log.info(m)
+    showInfo(m)
+
+def on_failed(error):
+    m = str(error)
     logger.log.info(m)
     showInfo(m)
