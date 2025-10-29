@@ -120,7 +120,7 @@ class BaseBackfillDialog(QDialog):
         self.preset.addItems(anki_util.read_user_files_folder())
 
     def _on_run(self):
-        logger.log.info(f"started tools backfill on {self._get_deck_name()}")
+        logger.log.info(f"started backfill on {self._get_deck_name()}")
         if self.tab_widget.currentIndex() == 0:
             self._run_single_field()
         else:
@@ -139,7 +139,7 @@ class BaseBackfillDialog(QDialog):
             op = lambda col: anki_util.backfill_notes(col, note_ids, expression_field, reading_field, [(field, handlebars, should_replace)])
         )
             
-        op.success(anki_util.on_success).run_in_background()
+        op.success(anki_util.on_success).failure(anki_util.on_failed).run_in_background()
 
     def _run_preset(self):
         expression_field = self.expression_field.currentText()
@@ -183,4 +183,4 @@ class BaseBackfillDialog(QDialog):
             op = lambda col: anki_util.backfill_notes(col, note_ids, expression_field, reading_field, target_tuples)
         )
             
-        op.success(anki_util.on_success).run_in_background()
+        op.success(anki_util.on_success).failure(anki_util.on_failed).run_in_background()

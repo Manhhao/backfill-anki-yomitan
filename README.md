@@ -27,7 +27,7 @@ Make sure your Browser is running and the API is working.
 5. Optionally tick `Replace` if you wish to replace the current content of the field in every card.
 6. Press `Run`.
 
-Changes can be undone with `Edit -> Undo` or with `CTRL + Z`.
+You can cancel backfilling by pressing on the close button of the processing popup. Changes can be undone with `Edit -> Undo` or with `CTRL + Z`.
 
 ## Presets
 You can backfill multiple fields using a `.json` preset. Presets are stored in the `user_files` folder in the addon directory. An example for [Lapis](https://github.com/donkuri/lapis?tab=readme-ov-file#how-to-use-lapis) is included and can be found [here](https://github.com/Manhhao/backfill-anki-yomitan/tree/main/user_files/lapis.json).

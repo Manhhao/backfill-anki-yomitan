@@ -11,7 +11,7 @@ from . import yomitan_api
 def backfill_notes(col, note_ids, expression_field, reading_field, targets):
     logger.log.info(targets)
     notes = []
-    for nid in note_ids:
+    for i, nid in enumerate(note_ids, 1):
         note = col.get_note(nid)
         if not expression_field in note:
             continue
@@ -67,6 +67,18 @@ def backfill_notes(col, note_ids, expression_field, reading_field, targets):
 
         if note_updated:
             notes.append(note)
+
+        if mw.progress.want_cancel():
+            raise Exception("Backfilling cancelled<br>No cards were updated but you might need to deleted unused media.")
+
+        # https://forums.ankiweb.net/t/custom-progress-updates-not-showing-up-in-collectionop-run-in-sync-did-finish/55301/7
+        mw.taskman.run_on_main(
+            lambda: mw.progress.update(
+                label=f"Processed {i} / {len(note_ids)} cards",
+                value=i,
+                max=len(note_ids)
+            )
+        )
             
     return OpChangesWithCount(changes=col.update_notes(notes), count=len(notes))
 
@@ -127,8 +139,13 @@ def get_data_from_reading(entries, reading):
         return None
     else:
         return entries[0]
-            
+
 def on_success(result):
     m = f"Updated {result.count} cards"
+    logger.log.info(m)
+    showInfo(m)
+
+def on_failed(error):
+    m = str(error)
     logger.log.info(m)
     showInfo(m)
