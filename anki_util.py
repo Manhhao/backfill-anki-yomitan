@@ -36,12 +36,15 @@ def backfill_notes(col, note_ids, expression_field, reading_field, targets):
             continue
 
         handlebar_data = get_data_from_reading(api_fields, reading)
+        if not handlebar_data:
+            logger.log.error(f"api request failed, no matching reading for: {expression} {reading} {handlebars_to_request}")
+            continue
 
         note_updated = False
         for field, handlebar in targets_to_update:
             data = "".join(handlebar_data.get(h, "") for h in handlebar)
             if not data:
-                logger.log.error(f"skipping {field} for {expression} {reading}, invalid api data")
+                logger.log.error(f"skipping {field} for {expression} {reading}, api data empty")
                 continue
 
             # check if handlebar data contains filename and write to anki if present
