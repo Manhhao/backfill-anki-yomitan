@@ -69,7 +69,7 @@ def backfill_notes(col, note_ids, expression_field, reading_field, targets):
             notes.append(note)
 
         if mw.progress.want_cancel():
-            raise Exception("Backfilling cancelled<br>No cards were updated but you might need to deleted unused media.")
+            raise Exception("Backfilling cancelled<br>No cards were updated but you might need to delete unused media.")
 
         # https://forums.ankiweb.net/t/custom-progress-updates-not-showing-up-in-collectionop-run-in-sync-did-finish/55301/7
         mw.taskman.run_on_main(
