@@ -147,7 +147,7 @@ class BaseBackfillDialog(QDialog):
         target_tuples = []
         try:
             path = os.path.join(anki_util.get_user_files_dir(), self.preset.currentText())
-            with open(path) as f:
+            with open(path, encoding="utf-8") as f:
                 preset = json.load(f)
                 targets = preset.get("targets")
                 for field, settings in targets.items():
@@ -174,7 +174,7 @@ class BaseBackfillDialog(QDialog):
             return
         except Exception as e:
             logger.log.error(e)
-            showWarning(e)
+            showWarning(str(e))
             return
 
         note_ids = self._get_note_ids()

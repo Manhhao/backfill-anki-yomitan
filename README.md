@@ -1,6 +1,6 @@
 # backfill-anki-yomitan
 
-This is a basic Anki add-on to backfill fields including media and audio using [Yomitan's API](https://github.com/Kuuuube/yomitan-api).
+Anki add-on to backfill fields including media and audio using [Yomitan's API](https://github.com/yomidevs/yomitan-api)
 ## Installation
 1. Install the Yomitan API like specified in the README.
 2. Install the add-on from [AnkiWeb](https://ankiweb.net/shared/info/1184164376)
@@ -81,8 +81,6 @@ Default: `19633`
 Default: `10`
 
 ## Issues
-If you're having issues updating please see [this](https://github.com/Manhhao/backfill-anki-yomitan/issues/16).
-
 If you're backfilling audio, please be aware that retrieving audio, depending on the audio sources configured in Yomitan, can be quite slow. You can reduce the time by decreasing `max_entries` in the config.
 
 If you encounter any issues, please report them on GitHub or in the add-on's TMW `#resources-sharing` thread. Please attach the `backfill-log.log` file, which can be found in the add-on's `user_files` directory.
