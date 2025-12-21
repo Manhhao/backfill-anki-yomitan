@@ -174,7 +174,7 @@ class BaseBackfillDialog(QDialog):
             return
         except Exception as e:
             logger.log.error(e)
-            showWarning(e)
+            showWarning(str(e))
             return
 
         note_ids = self._get_note_ids()
