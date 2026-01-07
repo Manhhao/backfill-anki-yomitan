@@ -12,6 +12,8 @@ ping_timeout = 5
 max_entries = 0
 reading_handlebar = ""
 
+scan_length = 16
+
 def read_config():
     global request_url
     global max_entries
@@ -60,7 +62,39 @@ def request_handlebar(expression, reading, handlebars):
         return None
     except URLError as e:
         logger.log.error(e.reason)
-        raise ConnectionRefusedError(f"Request to Yomitan API failed: {e.reason}")
+        raise ConnectionRefusedError(f"request to yomitan api failed: {e.reason}")
+    
+    return data
+
+def tokenize(text):
+    body = {
+        "text": text,
+        "scanLength": scan_length
+    }
+
+    req = urllib.request.Request(
+        request_url + "/tokenize",
+        data=json.dumps(body).encode("utf-8"),
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+
+    try:
+        response = urllib.request.urlopen(req, timeout=request_timeout)  
+        data = json.loads(response.read())
+    except HTTPError as e:
+        if e.code == 500:
+            logger.log.error(f"http 500: tokenize request using {text}")
+            return None
+        else:
+            logger.log.error(e)
+            raise
+    except socket.timeout:
+        logger.log.error(f"tokenize request using '{text}' timed out")
+        return None
+    except URLError as e:
+        logger.log.error(e.reason)
+        raise ConnectionRefusedError(f"tokenize request to yomitan API failed: {e.reason}")
     
     return data
 

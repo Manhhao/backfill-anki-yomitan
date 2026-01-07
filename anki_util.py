@@ -82,6 +82,65 @@ def backfill_notes(col, note_ids, expression_field, reading_field, targets):
             
     return OpChangesWithCount(changes=col.update_notes(notes), count=len(notes))
 
+def backfill_sentence_furigana(col, note_ids, sentence_field, sentence_furigana_field, should_replace):
+    notes = []
+    for i, nid in enumerate(note_ids, 1):
+        if mw.progress.want_cancel():
+            raise Exception("Backfilling cancelled<br>No cards were updated.")
+
+        mw.taskman.run_on_main(
+            lambda: mw.progress.update(
+                label=f"Processing card {i} / {len(note_ids)}",
+                value=i,
+                max=len(note_ids)
+            )
+        )
+
+        note = col.get_note(nid)
+        if not sentence_field in note:
+            continue
+
+        sentence = note[sentence_field].strip()
+        if not sentence:
+            continue
+        
+        if note[sentence_furigana_field].strip() and not should_replace:
+            continue
+
+        api_request = yomitan_api.tokenize(sentence)
+        if not api_request:
+            continue
+        
+        note[sentence_furigana_field] = generate_furigana_string(api_request[0])
+        notes.append(note)
+    
+    return OpChangesWithCount(changes=col.update_notes(notes), count=len(notes))
+
+def generate_furigana_string(data):
+    parts = []
+    for content in data.get("content"):
+        first = content[0].get("text", "")
+        
+        # append <b> and </b> to preserve bolding
+        if first.startswith('<') and first.endswith('>'):
+            parts.append(text)
+            continue
+        
+        parts.append('<span class="term">')
+
+        for token in content:
+            text = token.get("text", "")
+            reading = token.get("reading", "")
+
+            if reading and reading != text:
+                parts.append(f"<ruby>{text}<rt>{reading}</rt></ruby>")
+            else:
+                parts.append(text)
+
+        parts.append('</span>')
+
+    return "".join(parts)
+
 def filter_targets(targets, note, expression):
     result = []
     for field, handlebar, should_replace in targets:
