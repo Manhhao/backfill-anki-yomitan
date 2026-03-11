@@ -29,6 +29,8 @@ Make sure your Browser is running and the API is working.
 
 You can cancel backfilling by pressing on the close button of the processing popup. Changes can be undone with `Edit -> Undo` or with `CTRL + Z`.
 
+Depending on the dictionaries, backfilling can cause a large amount of inline css to be added to your cards. You can use the [Inline CSS Cleanup](https://github.com/L-M-Sherlock/inline_css_cleanup) addon to reduce your collection size.
+
 ## Presets
 You can backfill multiple fields using a `.json` preset. Presets are stored in the `user_files` folder in the addon directory. An example for [Lapis](https://github.com/donkuri/lapis?tab=readme-ov-file#how-to-use-lapis) is included and can be found [here](https://github.com/Manhhao/backfill-anki-yomitan/tree/main/user_files/lapis.json).
 
